@@ -18,3 +18,23 @@ const CITIES = {
 };
 
 // P1 부터 여기 아래에 씁니다.
+const form = document.querySelector("#run-form");
+const citySelect = document.querySelector("#city");
+const rainInput = document.querySelector("#rain_limit");
+const windInput = document.querySelector("#wind-limit");
+const statusEl = document.querySelector("#status");
+const summaryEl = document.querySelector("#summary");
+const rowsEl = document.querySelector("#rows");
+
+statusEl.textContent = "Pick a city and press Check.";
+
+form.addEventListener("submit", (event) => {
+  // 새로고침 방지
+  event.preventDefault();
+  //도시 선택의 값으로 CITIES에서 도시 객체를 꺼낸다.
+  const city = CITIES[citySelect.value];
+  //상태 줄에 Loading... 을 쓴다
+  statusEl.textContent = "Loading...";
+  //꺼낸 도시 객체를 console.log로 찍는다
+  console.log(city);
+})
