@@ -12,6 +12,8 @@
 
 // 주어짐: 도시 세 곳의 위도·경도. 키는 index.html <select> 의 option value 와 같습니다.
 import { getForecast } from "./api.js";
+import { toDays } from "./logic.js";
+
 
 const CITIES = {
   seoul: { name: "Seoul", lat: 37.566, lon: 126.9784 },
@@ -42,10 +44,38 @@ form.addEventListener("submit", async (event) => {
     const daily = await getForecast(city);
 
     statusEl.textContent = "";
-    console.log(daily);
+    state.city = city;
+    state.days = toDays(daily);
+
   } catch(err) {
     statusEl.textContent = `Could not load the forecast (${err.message}).`;
     statusEl.classList.add("error");
   }
+
+  render();
 });
 
+const state = {city: null, days: []};
+
+function dayRow(day){
+  const tr = document.createElement("tr");
+
+  const cells = [
+    day.date.slice(5),
+    `${day.max}°`,
+    `${day.wind} km/h`,
+    `${day.rain}%`
+  ];
+  for(const text of cells){
+    const td = document.createElement("td");
+    td.textContent = text;
+    tr.append(td);
+  }
+
+  return tr;
+}
+
+function render() {
+  const rows = state.days.map(dayRow);
+  rowsEl.replaceChildren(...rows);
+}
