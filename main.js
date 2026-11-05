@@ -95,3 +95,13 @@ function render() {
 
   rowsEl.replaceChildren(...state.days.map(dayRow));
 }
+
+for(const input of [rainInput, windInput]) {
+  input.addEventListener("input", ()=> {
+    state.limits = {
+      rain: Number(rainInput.value),
+      wind: Number(windInput.value),
+    };
+    render();
+  });
+}
