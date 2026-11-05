@@ -12,7 +12,7 @@
 
 // 주어짐: 도시 세 곳의 위도·경도. 키는 index.html <select> 의 option value 와 같습니다.
 import { getForecast } from "./api.js";
-import { toDays } from "./logic.js";
+import { toDays, isGoodDay, summarize } from "./logic.js";
 
 
 const CITIES = {
@@ -24,11 +24,17 @@ const CITIES = {
 // P1 부터 여기 아래에 씁니다.
 const form = document.querySelector("#run-form");
 const citySelect = document.querySelector("#city");
-const rainInput = document.querySelector("#rain_limit");
+const rainInput = document.querySelector("#rain-limit");
 const windInput = document.querySelector("#wind-limit");
 const statusEl = document.querySelector("#status");
 const summaryEl = document.querySelector("#summary");
 const rowsEl = document.querySelector("#rows");
+
+const state = {
+  city: null,
+  days: [],
+  limits: { rain: Number(rainInput.value), wind: Number(windInput.value) }
+};
 
 statusEl.textContent = "Pick a city and press Check.";
 
@@ -46,6 +52,10 @@ form.addEventListener("submit", async (event) => {
     statusEl.textContent = "";
     state.city = city;
     state.days = toDays(daily);
+    state.limits = {
+      rain: Number(rainInput.value),
+      wind: Number(windInput.value),
+    };
 
   } catch(err) {
     statusEl.textContent = `Could not load the forecast (${err.message}).`;
@@ -54,8 +64,6 @@ form.addEventListener("submit", async (event) => {
 
   render();
 });
-
-const state = {city: null, days: []};
 
 function dayRow(day){
   const tr = document.createElement("tr");
@@ -66,16 +74,24 @@ function dayRow(day){
     `${day.wind} km/h`,
     `${day.rain}%`
   ];
+
   for(const text of cells){
     const td = document.createElement("td");
     td.textContent = text;
     tr.append(td);
   }
 
+  if(isGoodDay(day, state.limits)){
+    tr.classList.add("good");
+  }
+
   return tr;
 }
 
 function render() {
-  const rows = state.days.map(dayRow);
-  rowsEl.replaceChildren(...rows);
+  summaryEl.textContent = state.city
+    ? `${state.city.name}: ${summarize(state.days, state.limits)}.`
+    : "";
+
+  rowsEl.replaceChildren(...state.days.map(dayRow));
 }
