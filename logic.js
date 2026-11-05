@@ -17,11 +17,25 @@ export function toDays(daily) {
     }));
 }
 
-export function isGoodDay(day, limits){
-    return day.rain <= limits.rain && day.wind <= limits.wind;
-}
 
 export function summarize(days, limits){
     const goodDays = days.filter((day) => isGoodDay(day, limits));
     return `good for a run on ${goodDays.length} of ${days.length} days`;
+}
+
+export function reasons(day, limits){
+    const result = [];
+
+    if(day.rain > limits.rain){
+        result.push("rain");
+    }
+    if(day.wind > limits.wind){
+        result.push("wind");
+    }
+
+    return result;
+}
+
+export function isGoodDay(day, limits){
+    return reasons(day, limits).length === 0;
 }
