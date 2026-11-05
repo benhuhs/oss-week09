@@ -11,6 +11,8 @@
 // 받아 오는 일은 api.js, 판단하는 규칙은 logic.js 에 둡니다. 이 파일에는 화면을 읽고 그리는 코드만.
 
 // 주어짐: 도시 세 곳의 위도·경도. 키는 index.html <select> 의 option value 와 같습니다.
+import { getForecast } from "./api.js";
+
 const CITIES = {
   seoul: { name: "Seoul", lat: 37.566, lon: 126.9784 },
   daejeon: { name: "Daejeon", lat: 36.3504, lon: 127.3845 },
@@ -28,13 +30,22 @@ const rowsEl = document.querySelector("#rows");
 
 statusEl.textContent = "Pick a city and press Check.";
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   // 새로고침 방지
   event.preventDefault();
   //도시 선택의 값으로 CITIES에서 도시 객체를 꺼낸다.
   const city = CITIES[citySelect.value];
   //상태 줄에 Loading... 을 쓴다
   statusEl.textContent = "Loading...";
-  //꺼낸 도시 객체를 console.log로 찍는다
-  console.log(city);
-})
+  statusEl.classList.remove("error");
+  try{
+    const daily = await getForecast(city);
+
+    statusEl.textContent = "";
+    console.log(daily);
+  } catch(err) {
+    statusEl.textContent = `Could not load the forecast (${err.message}).`;
+    statusEl.classList.add("error");
+  }
+});
+
